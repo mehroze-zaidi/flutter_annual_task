@@ -118,7 +118,7 @@ class _MyAppState extends State<MyApp> {
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Text(title, style: Theme.of(context).textTheme.headline6),
+      child: Text(title, style: Theme.of(context).textTheme.headlineSmall),
     );
   }
 
@@ -149,15 +149,15 @@ const List<String> CUSTOM_MONTH_LABEL = [
 ];
 
 class AnnualTaskItemHelper {
-  static List<AnnualTaskItem> generateAnnualTask({int year, int sampleSize}) {
+  static List<AnnualTaskItem> generateAnnualTask({int? year, int? sampleSize}) {
     var rnd = new Random();
     sampleSize = sampleSize ?? max(80, min(365, rnd.nextInt(200)));
     year ??= DateTime.now().year;
     DateTime prevDate = DateTime(year, 1, 1);
     return List.generate(sampleSize, (idx) {
       int maxDiff =
-          (365 - prevDate.difference(DateTime(year, 12, 31)).inDays) ~/
-              (sampleSize - idx);
+          (365 - prevDate.difference(DateTime(year!, 12, 31)).inDays) ~/
+              (sampleSize! - idx);
       prevDate = prevDate.add(Duration(days: rnd.nextInt(maxDiff) + 1));
       return AnnualTaskItem(prevDate, rnd.nextDouble());
     });
@@ -169,7 +169,7 @@ class AnnualTaskItemHelper {
     return items
         .map((e) => AnnualTaskColorItem(
               e.date,
-              proceeding: e.proceeding,
+              proceeding: e.proceeding!,
               color: colors[Random().nextInt(colors.length)],
             ))
         .toList();

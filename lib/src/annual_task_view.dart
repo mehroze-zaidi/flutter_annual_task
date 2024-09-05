@@ -226,7 +226,7 @@ class _AnnualTaskGrid extends StatelessWidget {
                         width: cellSize,
                         height: cellSize,
                         color: result?.fillColor(activateColor ??
-                                Theme.of(context).accentColor) ??
+                                Theme.of(context).primaryColor) ??
                             (emptyColor ?? Theme.of(context).disabledColor),
                       ),
                     );
