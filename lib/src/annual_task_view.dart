@@ -80,7 +80,7 @@ class _AnnualTaskViewState extends State<AnnualTaskView> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        _layoutManagerView(),
+       // _layoutManagerView(),
         StreamBuilder<Map<DateTime, AnnualTaskItem>?>(
           stream: _streamController.stream,
           builder: (context, snapshot) {
