@@ -124,7 +124,7 @@ class _MyAppState extends State<MyApp> {
 
   Widget _buildExample(String title, AnnualTaskView child) {
     return Column(children: [
-      title?.isNotEmpty == true ? Text(title) : Container(),
+      title.isNotEmpty == true ? Text(title) : Container(),
       SizedBox(height: 4.0),
       child,
       Divider(),
