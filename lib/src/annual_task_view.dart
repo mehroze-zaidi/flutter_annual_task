@@ -200,48 +200,54 @@ class _AnnualTaskGrid extends StatelessWidget {
         double maxWidth = contentsWidth ?? layout.maxWidth;
         // Use cellWidthFactor to adjust the cell size
         final double cellSize = (maxWidth / 53) * cellWidthFactor;
-        return Column(
-          children: List.generate(
-            _rowCnt,
-            (days) {
-              if (showMonthLabel == true && days == 0) {
-                return _buildMonthLabelRow(
-                  cellSize,
-                  paddingLeft: layout.maxWidth - maxWidth,
-                );
-              }
-              return Padding(
-                padding:
-                    EdgeInsets.symmetric(vertical: (maxWidth / 53) * 0.075),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: List.generate(_colCnt, (weeks) {
-                    if (showWeekDayLabel == true && weeks == 0) {
-                      return _buildWeekdayLabel(days,
-                          width: layout.maxWidth - maxWidth);
-                    }
-                    AnnualTaskItem? result = _getResult(weeks, days);
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                        cellShape == AnnualTaskCellShape.SQUARE
-                            ? 0
-                            : cellShape == AnnualTaskCellShape.CIRCLE
+        return LayoutBuilder(
+          builder: (context, layout) {
+            double maxWidth = contentsWidth ?? layout.maxWidth;
+            // Use cellWidthFactor to adjust the cell size
+            final double cellSize = (maxWidth / 53) * cellWidthFactor;
+            return Column(
+              children: List.generate(
+                _rowCnt,
+                    (days) {
+                  if (showMonthLabel == true && days == 0) {
+                    return _buildMonthLabelRow(
+                      cellSize,
+                      paddingLeft: layout.maxWidth - maxWidth,
+                    );
+                  }
+                  return Padding(
+                    padding: EdgeInsets.symmetric(vertical: (maxWidth / 53) * 0.075),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: List.generate(_colCnt, (weeks) {
+                        if (showWeekDayLabel == true && weeks == 0) {
+                          return _buildWeekdayLabel(days,
+                              width: layout.maxWidth - maxWidth);
+                        }
+                        AnnualTaskItem? result = _getResult(weeks, days);
+                        return ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                            cellShape == AnnualTaskCellShape.SQUARE
+                                ? 0
+                                : cellShape == AnnualTaskCellShape.CIRCLE
                                 ? 200
                                 : cellSize / 4,
-                      ),
-                      child: Container(
-                        width: cellSize,
-                        height: cellSize,
-                        color: result?.fillColor(activateColor ??
+                          ),
+                          child: Container(
+                            width: cellSize,
+                            height: cellSize,
+                            color: result?.fillColor(activateColor ??
                                 Theme.of(context).primaryColor) ??
-                            (emptyColor ?? Theme.of(context).disabledColor),
-                      ),
-                    );
-                  }),
-                ),
-              );
-            },
-          ),
+                                (emptyColor ?? Theme.of(context).disabledColor),
+                          ),
+                        );
+                      }),
+                    ),
+                  );
+                },
+              ),
+            );
+          },
         );
       },
     );
