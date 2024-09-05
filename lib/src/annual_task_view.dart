@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import './annual_task_item.dart';
 
 enum AnnualTaskCellShape { SQUARE, CIRCLE, ROUNDED_SQUARE }
@@ -20,19 +21,22 @@ class AnnualTaskView extends StatefulWidget {
   final bool swipeEnabled;
   final TextStyle? labelStyle;
 
-  AnnualTaskView(
-    this.items, {
-    int? year,
-    this.activateColor,
-    this.emptyColor,
-    this.cellShape,
-    this.showWeekDayLabel = true,
-    this.showMonthLabel = true,
-    List<String>? weekDayLabels,
-    List<String>? monthLabels,
-    this.labelStyle,
-    this.swipeEnabled = true,
-  })  : assert(showWeekDayLabel == false ||
+  // New parameter for adjusting the cell width proportionally
+  final double cellWidthFactor;
+
+  AnnualTaskView(this.items,
+      {int? year,
+      this.activateColor,
+      this.emptyColor,
+      this.cellShape,
+      this.showWeekDayLabel = true,
+      this.showMonthLabel = true,
+      List<String>? weekDayLabels,
+      List<String>? monthLabels,
+      this.labelStyle,
+      this.swipeEnabled = true,
+      this.cellWidthFactor = 0.85})
+      : assert(showWeekDayLabel == false ||
             (weekDayLabels == null || weekDayLabels.length == 7)),
         assert(showMonthLabel == false ||
             (monthLabels == null || monthLabels.length == 12)),
@@ -55,20 +59,20 @@ class _AnnualTaskViewState extends State<AnnualTaskView> {
 
   @override
   void initState() {
-    super.initState();
     Future.delayed(Duration.zero, () => _buildListToMap());
+    super.initState();
   }
 
   @override
   void didUpdateWidget(AnnualTaskView oldWidget) {
-    super.didUpdateWidget(oldWidget);
     _buildListToMap();
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
   void dispose() {
-    _streamController.close();
     super.dispose();
+    _streamController.close();
   }
 
   @override
@@ -101,6 +105,7 @@ class _AnnualTaskViewState extends State<AnnualTaskView> {
                 widget.cellShape,
                 widget.labelStyle,
                 contentsWidth,
+                widget.cellWidthFactor
               ),
             );
           },
@@ -169,7 +174,7 @@ class _AnnualTaskGrid extends StatelessWidget {
   final TextStyle labelStyle;
 
   final double? contentsWidth;
-
+  final double cellWidthFactor; // New parameter for cell size adjustment
   _AnnualTaskGrid(
     int year,
     this.resultMap,
@@ -182,6 +187,7 @@ class _AnnualTaskGrid extends StatelessWidget {
     AnnualTaskCellShape? cellShape,
     TextStyle? labelStyle,
     this.contentsWidth,
+    this.cellWidthFactor,
   )   : firstDate = DateTime(year, 1, 1),
         firstDay = DateTime(year, 1, 1).weekday % 7,
         this.cellShape = cellShape ?? AnnualTaskCellShape.ROUNDED_SQUARE,
@@ -192,7 +198,8 @@ class _AnnualTaskGrid extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, layout) {
         double maxWidth = contentsWidth ?? layout.maxWidth;
-        final double cellSize = (maxWidth / 53) * 0.85;
+        // Use cellWidthFactor to adjust the cell size
+        final double cellSize = (maxWidth / 53) * cellWidthFactor;
         return Column(
           children: List.generate(
             _rowCnt,
@@ -250,6 +257,7 @@ class _AnnualTaskGrid extends StatelessWidget {
   }
 
   int get _colCnt => showWeekDayLabel == true ? 54 : 53;
+
   int get _rowCnt => showMonthLabel == true ? 8 : 7;
 
   Widget _buildMonthLabelRow(double cellSize, {double? paddingLeft}) {
