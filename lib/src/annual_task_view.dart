@@ -23,19 +23,20 @@ class AnnualTaskView extends StatefulWidget {
 
   // New parameter for adjusting the cell width proportionally
   final double cellWidthFactor;
+  final double spacing;
 
   AnnualTaskView(this.items,
       {int? year,
       this.activateColor,
       this.emptyColor,
       this.cellShape,
-      this.showWeekDayLabel = true,
-      this.showMonthLabel = true,
+      this.showWeekDayLabel = false,
+      this.showMonthLabel = false,
       List<String>? weekDayLabels,
       List<String>? monthLabels,
       this.labelStyle,
-      this.swipeEnabled = true,
-      this.cellWidthFactor = 0.85})
+      this.swipeEnabled = false,
+      this.cellWidthFactor = 0.85,this.spacing=0})
       : assert(showWeekDayLabel == false ||
             (weekDayLabels == null || weekDayLabels.length == 7)),
         assert(showMonthLabel == false ||
@@ -80,7 +81,7 @@ class _AnnualTaskViewState extends State<AnnualTaskView> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-       _layoutManagerView(),
+        _layoutManagerView(),
         StreamBuilder<Map<DateTime, AnnualTaskItem>?>(
           stream: _streamController.stream,
           builder: (context, snapshot) {
@@ -94,19 +95,18 @@ class _AnnualTaskViewState extends State<AnnualTaskView> {
               opacity: opacity,
               duration: Duration(milliseconds: opacity == 1.0 ? 500 : 0),
               child: _AnnualTaskGrid(
-                widget.year,
-                snapshot.data,
-                widget.activateColor ?? Theme.of(context).primaryColor,
-                widget.emptyColor,
-                widget.showWeekDayLabel,
-                widget.showMonthLabel,
-                widget.weekDayLabels,
-                widget.monthLabels,
-                widget.cellShape,
-                widget.labelStyle,
-                contentsWidth,
-                widget.cellWidthFactor
-              ),
+                  widget.year,
+                  snapshot.data,
+                  widget.activateColor ?? Theme.of(context).primaryColor,
+                  widget.emptyColor,
+                  widget.showWeekDayLabel,
+                  widget.showMonthLabel,
+                  widget.weekDayLabels,
+                  widget.monthLabels,
+                  widget.cellShape,
+                  widget.labelStyle,
+                  contentsWidth,
+                  widget.cellWidthFactor,widget.spacing,widget.swipeEnabled),
             );
           },
         ),
@@ -158,6 +158,8 @@ class _AnnualTaskViewState extends State<AnnualTaskView> {
   }
 }
 
+
+
 class _AnnualTaskGrid extends StatelessWidget {
   final DateTime firstDate;
   final Map<DateTime, AnnualTaskItem>? resultMap;
@@ -175,6 +177,8 @@ class _AnnualTaskGrid extends StatelessWidget {
 
   final double? contentsWidth;
   final double cellWidthFactor; // New parameter for cell size adjustment
+  final double spacing; // New parameter for cell size adjustment
+ final enableSwipe;
   _AnnualTaskGrid(
     int year,
     this.resultMap,
@@ -188,6 +192,8 @@ class _AnnualTaskGrid extends StatelessWidget {
     TextStyle? labelStyle,
     this.contentsWidth,
     this.cellWidthFactor,
+      this.spacing,
+      this.enableSwipe
   )   : firstDate = DateTime(year, 1, 1),
         firstDay = DateTime(year, 1, 1).weekday % 7,
         this.cellShape = cellShape ?? AnnualTaskCellShape.ROUNDED_SQUARE,
@@ -197,64 +203,70 @@ class _AnnualTaskGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, layout) {
-        double maxWidth = contentsWidth ?? layout.maxWidth;
-        // Use cellWidthFactor to adjust the cell size
-        final double cellSize = (maxWidth / 53) * cellWidthFactor;
+
         return LayoutBuilder(
           builder: (context, layout) {
-            double maxWidth = contentsWidth ?? layout.maxWidth;
-            // Use cellWidthFactor to adjust the cell size
-            final double cellSize = (maxWidth / 53) * cellWidthFactor;
-            return SingleChildScrollView(
+
+            return enableSwipe?  SingleChildScrollView(
 
               scrollDirection: Axis.horizontal, // Enable horizontal scrolling
-              child: Column(
-                children: List.generate(
-                  _rowCnt,
-                      (days) {
-                    if (showMonthLabel == true && days == 0) {
-                      return _buildMonthLabelRow(
-                        cellSize,
-                        paddingLeft: layout.maxWidth - maxWidth,
-                      );
-                    }
-                    return Padding(
-                      padding: EdgeInsets.symmetric(vertical: (maxWidth / 53) * 0.075),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: List.generate(_colCnt, (weeks) {
-                          if (showWeekDayLabel == true && weeks == 0) {
-                            return _buildWeekdayLabel(days,
-                                width: layout.maxWidth - maxWidth);
-                          }
-                          AnnualTaskItem? result = _getResult(weeks, days);
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(
-                              cellShape == AnnualTaskCellShape.SQUARE
-                                  ? 0
-                                  : cellShape == AnnualTaskCellShape.CIRCLE
-                                  ? 200
-                                  : cellSize / 4,
-                            ),
-                            child: Container(
-                              width: cellSize,
-                              height: cellSize,
-                              padding: EdgeInsets.only(right: 5,left: 5),
-                              color: result?.fillColor(activateColor ??
-                                  Theme.of(context).primaryColor) ??
-                                  (emptyColor ?? Theme.of(context).disabledColor),
-                            ),
-                          );
-                        }),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            );
+              child: _buildTaskGrid(context,layout)
+            ):_buildTaskGrid(context, layout);
           },
         );
       },
+    );
+  }
+
+  _buildTaskGrid(BuildContext context,BoxConstraints layout){
+    double maxWidth = contentsWidth ?? layout.maxWidth;
+    // Use cellWidthFactor to adjust the cell size
+    final double cellSize = (maxWidth / 53) * cellWidthFactor;
+    return Column(
+      children: List.generate(
+        _rowCnt,
+            (days) {
+          if (showMonthLabel == true && days == 0) {
+            return _buildMonthLabelRow(
+              cellSize,
+              paddingLeft: layout.maxWidth - maxWidth,
+            );
+          }
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: (maxWidth / 53) * 0.075),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: List.generate(_colCnt, (weeks) {
+                if (showWeekDayLabel == true && weeks == 0) {
+                  return _buildWeekdayLabel(days,
+                      width: layout.maxWidth - maxWidth);
+                }
+                AnnualTaskItem? result = _getResult(weeks, days);
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(
+                    cellShape == AnnualTaskCellShape.SQUARE
+                        ? 0
+                        : cellShape == AnnualTaskCellShape.CIRCLE
+                        ? 200
+                        : cellSize / 4,
+                  ),
+                  child: Padding(
+                    padding:  EdgeInsets.all(spacing),
+                    child: Container(
+                      width: cellSize,
+                      height: cellSize,
+
+                      color: result?.fillColor(activateColor ??
+                          Theme.of(context).primaryColor) ??
+                          (emptyColor ?? Theme.of(context).disabledColor),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          );
+        },
+      ),
     );
   }
 
