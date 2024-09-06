@@ -239,6 +239,7 @@ class _AnnualTaskGrid extends StatelessWidget {
                             child: Container(
                               width: cellSize,
                               height: cellSize,
+                              padding: EdgeInsets.only(right: 5,left: 5),
                               color: result?.fillColor(activateColor ??
                                   Theme.of(context).primaryColor) ??
                                   (emptyColor ?? Theme.of(context).disabledColor),
