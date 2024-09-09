@@ -31,81 +31,83 @@ class _MyAppState extends State<MyApp> {
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 children: [
-                  _buildSectionTitle('Default'),
-                  _buildExample(
-                    '',
-                    AnnualTaskView(
-                      taskItems,
-                      showMonthLabel: false,
-                      showWeekDayLabel: false,
-                    ),
-                  ),
+                  // _buildSectionTitle('Default'),
+                  // _buildExample(
+                  //   '',
+                  //   AnnualTaskView(
+                  //     taskItems,
+                  //     showMonthLabel: false,
+                  //     showWeekDayLabel: false,
+                  //   ),
+                  // ),
                   // Examples for cellShape
                   _buildSectionTitle('Cell shape'),
                   _buildExample(
                     'square',
                     AnnualTaskView(
+                      swipeEnabled: true,
+                      spacing: 2,
                       taskItems, // List<AnnualTaskItem>
                       activateColor: Colors.red,
                       cellShape: AnnualTaskCellShape.SQUARE,
                     ),
                   ),
-                  _buildExample(
-                    'circle',
-                    AnnualTaskView(
-                      taskItems, // List<AnnualTaskItem>
-                      activateColor: Colors.red,
-                      emptyColor: Colors.grey.withAlpha(80),
-                      cellShape: AnnualTaskCellShape.CIRCLE,
-                    ),
-                  ),
-                  _buildExample(
-                    'AnnualTaskColorItem',
-                    AnnualTaskView(
-                      taskItemsWithColor,
-                      weekDayLabels: [
-                        'Sun',
-                        'Mon',
-                        'Tue',
-                        'Wed',
-                        'Thu',
-                        'Fri',
-                        'Sat'
-                      ],
-                    ),
-                  ),
+                  // _buildExample(
+                  //   'circle',
+                  //   AnnualTaskView(
+                  //     taskItems, // List<AnnualTaskItem>
+                  //     activateColor: Colors.red,
+                  //     emptyColor: Colors.grey.withAlpha(80),
+                  //     cellShape: AnnualTaskCellShape.CIRCLE,
+                  //   ),
+                  // ),
+                  // _buildExample(
+                  //   'AnnualTaskColorItem',
+                  //   AnnualTaskView(
+                  //     taskItemsWithColor,
+                  //     weekDayLabels: [
+                  //       'Sun',
+                  //       'Mon',
+                  //       'Tue',
+                  //       'Wed',
+                  //       'Thu',
+                  //       'Fri',
+                  //       'Sat'
+                  //     ],
+                  //   ),
+                  // ),
 
                   // Examples for label
-                  _buildSectionTitle('Labels'),
-                  _buildExample(
-                    'without labels',
-                    AnnualTaskView(
-                      taskItems, // List<AnnualTaskItem>
-                      showMonthLabel: false,
-                      showWeekDayLabel: false,
-                    ),
-                  ),
-                  _buildExample(
-                    'custom labels',
-                    AnnualTaskView(
-                      taskItems, // List<AnnualTaskItem>
-                      weekDayLabels: CUSTOM_WEEKDAY_LABEL,
-                      monthLabels: CUSTOM_MONTH_LABEL,
-                    ),
-                  ),
-                  _buildExample(
-                    'labels style',
-                    AnnualTaskView(
-                      taskItems, // List<AnnualTaskItem>
-                      weekDayLabels: CUSTOM_WEEKDAY_LABEL,
-                      monthLabels: CUSTOM_MONTH_LABEL,
-                      labelStyle: TextStyle(
-                        color: Colors.blueGrey,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                  // _buildSectionTitle('Labels'),
+                  // _buildExample(
+                  //   'without labels',
+                  //   AnnualTaskView(
+                  //     taskItems, // List<AnnualTaskItem>
+                  //     showMonthLabel: false,
+                  //     showWeekDayLabel: false,
+                  //   ),
+                  // ),
+                  // _buildExample(
+                  //   'custom labels',
+                  //   AnnualTaskView(
+                  //     taskItems, // List<AnnualTaskItem>
+                  //     weekDayLabels: CUSTOM_WEEKDAY_LABEL,
+                  //     monthLabels: CUSTOM_MONTH_LABEL,
+                  //   ),
+                  // ),
+                  // _buildExample(
+                  //   'labels style',
+                  //   AnnualTaskView(
+                  //     taskItems, // List<AnnualTaskItem>
+                  //     weekDayLabels: CUSTOM_WEEKDAY_LABEL,
+                  //     monthLabels: CUSTOM_MONTH_LABEL,
+                  //     labelStyle: TextStyle(
+                  //       color: Colors.blueGrey,
+                  //       fontSize: 10,
+                  //       fontWeight: FontWeight.bold,
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
