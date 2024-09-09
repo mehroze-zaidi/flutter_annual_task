@@ -30,13 +30,14 @@ class AnnualTaskView extends StatefulWidget {
       this.activateColor,
       this.emptyColor,
       this.cellShape,
-      this.showWeekDayLabel = false,
-      this.showMonthLabel = false,
+      this.showWeekDayLabel = true,
+      this.showMonthLabel = true,
       List<String>? weekDayLabels,
       List<String>? monthLabels,
       this.labelStyle,
       this.swipeEnabled = false,
-      this.cellWidthFactor = 0.85,this.spacing=0})
+      this.cellWidthFactor = 0.85,
+      this.spacing = 0})
       : assert(showWeekDayLabel == false ||
             (weekDayLabels == null || weekDayLabels.length == 7)),
         assert(showMonthLabel == false ||
@@ -106,7 +107,9 @@ class _AnnualTaskViewState extends State<AnnualTaskView> {
                   widget.cellShape,
                   widget.labelStyle,
                   contentsWidth,
-                  widget.cellWidthFactor,widget.spacing,widget.swipeEnabled),
+                  widget.cellWidthFactor,
+                  widget.spacing,
+                  widget.swipeEnabled),
             );
           },
         ),
@@ -158,8 +161,6 @@ class _AnnualTaskViewState extends State<AnnualTaskView> {
   }
 }
 
-
-
 class _AnnualTaskGrid extends StatelessWidget {
   final DateTime firstDate;
   final Map<DateTime, AnnualTaskItem>? resultMap;
@@ -178,23 +179,24 @@ class _AnnualTaskGrid extends StatelessWidget {
   final double? contentsWidth;
   final double cellWidthFactor; // New parameter for cell size adjustment
   final double spacing; // New parameter for cell size adjustment
- final enableSwipe;
+  final enableSwipe;
+
   _AnnualTaskGrid(
-    int year,
-    this.resultMap,
-    this.activateColor,
-    this.emptyColor,
-    this.showWeekDayLabel,
-    this.showMonthLabel,
-    this.weekDayLabels,
-    this.monthLabels,
-    AnnualTaskCellShape? cellShape,
-    TextStyle? labelStyle,
-    this.contentsWidth,
-    this.cellWidthFactor,
+      int year,
+      this.resultMap,
+      this.activateColor,
+      this.emptyColor,
+      this.showWeekDayLabel,
+      this.showMonthLabel,
+      this.weekDayLabels,
+      this.monthLabels,
+      AnnualTaskCellShape? cellShape,
+      TextStyle? labelStyle,
+      this.contentsWidth,
+      this.cellWidthFactor,
       this.spacing,
-      this.enableSwipe
-  )   : firstDate = DateTime(year, 1, 1),
+      this.enableSwipe)
+      : firstDate = DateTime(year, 1, 1),
         firstDay = DateTime(year, 1, 1).weekday % 7,
         this.cellShape = cellShape ?? AnnualTaskCellShape.ROUNDED_SQUARE,
         this.labelStyle = labelStyle ?? _LABEL_STYLE;
@@ -203,29 +205,29 @@ class _AnnualTaskGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, layout) {
-
         return LayoutBuilder(
           builder: (context, layout) {
-
-            return enableSwipe?  SingleChildScrollView(
-
-              scrollDirection: Axis.horizontal, // Enable horizontal scrolling
-              child: _buildTaskGrid(context,layout)
-            ):_buildTaskGrid(context, layout);
+            return enableSwipe
+                ? SingleChildScrollView(
+                    scrollDirection:
+                        Axis.horizontal, // Enable horizontal scrolling
+                    child: _buildTaskGrid(context, layout))
+                : _buildTaskGrid(context, layout);
           },
         );
       },
     );
   }
 
-  _buildTaskGrid(BuildContext context,BoxConstraints layout){
+  _buildTaskGrid(BuildContext context, BoxConstraints layout) {
     double maxWidth = contentsWidth ?? layout.maxWidth;
     // Use cellWidthFactor to adjust the cell size
     final double cellSize = (maxWidth / 53) * cellWidthFactor;
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: List.generate(
         _rowCnt,
-            (days) {
+        (days) {
           if (showMonthLabel == true && days == 0) {
             return _buildMonthLabelRow(
               cellSize,
@@ -247,17 +249,16 @@ class _AnnualTaskGrid extends StatelessWidget {
                     cellShape == AnnualTaskCellShape.SQUARE
                         ? 0
                         : cellShape == AnnualTaskCellShape.CIRCLE
-                        ? 200
-                        : cellSize / 4,
+                            ? 200
+                            : cellSize / 4,
                   ),
                   child: Padding(
-                    padding:  EdgeInsets.all(spacing),
+                    padding: EdgeInsets.all(spacing),
                     child: Container(
                       width: cellSize,
                       height: cellSize,
-
                       color: result?.fillColor(activateColor ??
-                          Theme.of(context).primaryColor) ??
+                              Theme.of(context).primaryColor) ??
                           (emptyColor ?? Theme.of(context).disabledColor),
                     ),
                   ),
@@ -282,7 +283,6 @@ class _AnnualTaskGrid extends StatelessWidget {
   int get _colCnt => showWeekDayLabel == true ? 54 : 53;
 
   int get _rowCnt => showMonthLabel == true ? 8 : 7;
-
   Widget _buildMonthLabelRow(double cellSize, {double? paddingLeft}) {
     return Padding(
       padding: EdgeInsets.only(left: paddingLeft ?? 0),
@@ -296,7 +296,7 @@ class _AnnualTaskGrid extends StatelessWidget {
 
   Widget _buildMonthLabel(int idx, double cellSize) {
     DateTime date =
-        DateTime(firstDate.year, idx + 2, 1).subtract(Duration(days: 1));
+    DateTime(firstDate.year, idx + 2, 1).subtract(Duration(days: 1));
     return Container(
       width: (cellSize / 0.85) * (date.day / 7.0),
       child: Column(
@@ -315,12 +315,18 @@ class _AnnualTaskGrid extends StatelessWidget {
     );
   }
 
+
+
+
   Widget _buildWeekdayLabel(int weekIdx, {double? width}) {
     return Container(
+      margin: EdgeInsets.zero,
+      padding:EdgeInsets.zero ,
       width: width ?? 0,
       alignment: Alignment.centerRight,
       child: Text(
         weekDayLabels?.elementAt(weekIdx - (showMonthLabel ? 1 : 0)) ?? '',
+        textAlign: TextAlign.start,
         style: labelStyle,
       ),
     );
