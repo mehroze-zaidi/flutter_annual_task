@@ -228,21 +228,21 @@ class _AnnualTaskGrid extends StatelessWidget {
       children: List.generate(
         _rowCnt,
         (days) {
-          if (showMonthLabel == true && days == 0) {
-            return _buildMonthLabelRow(
-              cellSize,
-              paddingLeft: layout.maxWidth - maxWidth,
-            );
-          }
+          // if (showMonthLabel == true && days == 0) {
+          //   return _buildMonthLabelRow(
+          //     cellSize,
+          //     paddingLeft: layout.maxWidth - maxWidth,
+          //   );
+          // }
           return Padding(
             padding: EdgeInsets.symmetric(vertical: (maxWidth / 53) * 0.075),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(_colCnt, (weeks) {
-                if (showWeekDayLabel == true && weeks == 0) {
-                  return _buildWeekdayLabel(days,
-                      width: layout.maxWidth - maxWidth);
-                }
+                // if (showWeekDayLabel == true && weeks == 0) {
+                //   return _buildWeekdayLabel(days,
+                //       width: layout.maxWidth - maxWidth);
+                // }
                 AnnualTaskItem? result = _getResult(weeks, days);
                 return ClipRRect(
                   borderRadius: BorderRadius.circular(
@@ -283,54 +283,54 @@ class _AnnualTaskGrid extends StatelessWidget {
   int get _colCnt => showWeekDayLabel == true ? 54 : 53;
 
   int get _rowCnt => showMonthLabel == true ? 8 : 7;
-  Widget _buildMonthLabelRow(double cellSize, {double? paddingLeft}) {
-    return Padding(
-      padding: EdgeInsets.only(left: paddingLeft ?? 0),
-      child: Row(
-        children: List.generate(12, (idx) {
-          return _buildMonthLabel(idx, cellSize);
-        }),
-      ),
-    );
-  }
-
-  Widget _buildMonthLabel(int idx, double cellSize) {
-    DateTime date =
-    DateTime(firstDate.year, idx + 2, 1).subtract(Duration(days: 1));
-    return Container(
-      width: (cellSize / 0.85) * (date.day / 7.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            constraints: BoxConstraints(minWidth: cellSize * 1.5),
-            child: Text(
-              monthLabels?.elementAt(idx) ?? '',
-              style: labelStyle,
-              textAlign: TextAlign.center,
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-
+  // Widget _buildMonthLabelRow(double cellSize, {double? paddingLeft}) {
+  //   return Padding(
+  //     padding: EdgeInsets.only(left: paddingLeft ?? 0),
+  //     child: Row(
+  //       children: List.generate(12, (idx) {
+  //         return _buildMonthLabel(idx, cellSize);
+  //       }),
+  //     ),
+  //   );
+  // }
+    //
+    // Widget _buildMonthLabel(int idx, double cellSize) {
+    //   DateTime date =
+    //   DateTime(firstDate.year, idx + 2, 1).subtract(Duration(days: 1));
+    //   return Container(
+    //     width: (cellSize / 0.85) * (date.day / 7.0),
+    //     child: Column(
+    //       crossAxisAlignment: CrossAxisAlignment.start,
+    //       children: [
+    //         Container(
+    //           constraints: BoxConstraints(minWidth: cellSize * 1.5),
+    //           child: Text(
+    //             monthLabels?.elementAt(idx) ?? '',
+    //             style: labelStyle,
+    //             textAlign: TextAlign.center,
+    //           ),
+    //         )
+    //       ],
+    //     ),
+    //   );
+    // }
 
 
-  Widget _buildWeekdayLabel(int weekIdx, {double? width}) {
-    return Container(
-      margin: EdgeInsets.zero,
-      padding:EdgeInsets.zero ,
-      width: width ?? 0,
-      alignment: Alignment.centerRight,
-      child: Text(
-        weekDayLabels?.elementAt(weekIdx - (showMonthLabel ? 1 : 0)) ?? '',
-        textAlign: TextAlign.start,
-        style: labelStyle,
-      ),
-    );
-  }
+
+
+  // Widget _buildWeekdayLabel(int weekIdx, {double? width}) {
+  //   return Container(
+  //     margin: EdgeInsets.zero,
+  //     padding:EdgeInsets.zero ,
+  //     width: width ?? 0,
+  //     alignment: Alignment.centerRight,
+  //     child: Text(
+  //       weekDayLabels?.elementAt(weekIdx - (showMonthLabel ? 1 : 0)) ?? '',
+  //       textAlign: TextAlign.start,
+  //       style: labelStyle,
+  //     ),
+  //   );
+  // }
 }
 
 const List<String> _WEEKDAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
