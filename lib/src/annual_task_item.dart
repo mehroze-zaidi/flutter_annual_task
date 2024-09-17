@@ -1,11 +1,14 @@
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
+
 class AnnualTaskItem {
+  final GlobalKey? key;
   final DateTime _date;
   final double? proceeding;
   DateTime get date => _date;
 
-  AnnualTaskItem(DateTime date, [this.proceeding = 1.0])
+  AnnualTaskItem(DateTime date, [this.key,this.proceeding = 1.0])
       : this._date = DateTime(date.year, date.month, date.day);
 
   int get alpha => ((255.0 - 80.0) * (proceeding ?? 0)).toInt();
@@ -22,7 +25,7 @@ class AnnualTaskColorItem extends AnnualTaskItem {
     DateTime date, {
     double proceeding = 1.0,
     this.color,
-  }) : super(date, proceeding);
+  }) : super(date,null, proceeding);
 
   @override
   Color? fillColor(Color? activateColor) {

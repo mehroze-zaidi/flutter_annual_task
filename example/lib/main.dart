@@ -45,11 +45,21 @@ class _MyAppState extends State<MyApp> {
                   _buildExample(
                     'square',
                     AnnualTaskView(
+                      firstDate: DateTime(DateTime.now().year,DateTime.now().month,DateTime.now().day),
                       swipeEnabled: true,
                       spacing: 2,
-                      taskItems, // List<AnnualTaskItem>
+                      // taskItems, // List<AnnualTaskItem>
+                      [
+                        AnnualTaskItem(DateTime.now(), GlobalKey()),
+                        AnnualTaskItem(
+                            DateTime.now().add(Duration(days: 1)), GlobalKey()),
+                        AnnualTaskItem(
+                            DateTime.now().add(Duration(days: 30)), GlobalKey())
+                      ],
                       activateColor: Colors.red,
                       cellShape: AnnualTaskCellShape.SQUARE,
+                      showWeekDayLabel: false,
+                      showMonthLabel: false,
                     ),
                   ),
                   // _buildExample(
@@ -161,7 +171,7 @@ class AnnualTaskItemHelper {
           (365 - prevDate.difference(DateTime(year!, 12, 31)).inDays) ~/
               (sampleSize! - idx);
       prevDate = prevDate.add(Duration(days: rnd.nextInt(maxDiff) + 1));
-      return AnnualTaskItem(prevDate, rnd.nextDouble());
+      return AnnualTaskItem(prevDate, GlobalKey(), rnd.nextDouble());
     });
   }
 

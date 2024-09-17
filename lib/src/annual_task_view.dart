@@ -24,6 +24,7 @@ class AnnualTaskView extends StatefulWidget {
   // New parameter for adjusting the cell width proportionally
   final double cellWidthFactor;
   final double spacing;
+  final DateTime firstDate;
 
   AnnualTaskView(this.items,
       {int? year,
@@ -37,7 +38,8 @@ class AnnualTaskView extends StatefulWidget {
       this.labelStyle,
       this.swipeEnabled = false,
       this.cellWidthFactor = 0.85,
-      this.spacing = 0})
+      this.spacing = 0,
+      required this.firstDate})
       : assert(showWeekDayLabel == false ||
             (weekDayLabels == null || weekDayLabels.length == 7)),
         assert(showMonthLabel == false ||
@@ -61,7 +63,10 @@ class _AnnualTaskViewState extends State<AnnualTaskView> {
 
   @override
   void initState() {
-    Future.delayed(Duration.zero, () => _buildListToMap());
+    Future.delayed(Duration.zero, () {
+      return _buildListToMap();
+    });
+
     super.initState();
   }
 
@@ -83,52 +88,91 @@ class _AnnualTaskViewState extends State<AnnualTaskView> {
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         _layoutManagerView(),
-        StreamBuilder<Map<DateTime, AnnualTaskItem>?>(
-          stream: _streamController.stream,
-          builder: (context, snapshot) {
-            double opacity = 1.0;
-            if (contentsWidth == null) {
-              opacity = 0.0;
-            } else if (_refreshing == true) {
-              opacity = 0.5;
-            }
-            return AnimatedOpacity(
-              opacity: opacity,
-              duration: Duration(milliseconds: opacity == 1.0 ? 500 : 0),
-              child: _AnnualTaskGrid(
-                  widget.year,
-                  snapshot.data,
-                  widget.activateColor ?? Theme.of(context).primaryColor,
-                  widget.emptyColor,
-                  widget.showWeekDayLabel,
-                  widget.showMonthLabel,
-                  widget.weekDayLabels,
-                  widget.monthLabels,
-                  widget.cellShape,
-                  widget.labelStyle,
-                  contentsWidth,
-                  widget.cellWidthFactor,
-                  widget.spacing,
-                  widget.swipeEnabled),
-            );
-          },
-        ),
+        Builder(builder: (context) {
+          double opacity = 1.0;
+          if (contentsWidth == null) {
+            opacity = 0.0;
+          } else if (_refreshing == true) {
+            opacity = 0.5;
+          }
+          return AnimatedOpacity(
+            opacity: opacity,
+            duration: Duration(milliseconds: opacity == 1.0 ? 500 : 0),
+            child: _AnnualTaskGrid(
+                widget.year,
+                _buildListToMap(),
+                widget.activateColor ?? Theme.of(context).primaryColor,
+                widget.emptyColor,
+                widget.showWeekDayLabel,
+                widget.showMonthLabel,
+                widget.weekDayLabels,
+                widget.monthLabels,
+                widget.cellShape,
+                widget.labelStyle,
+                contentsWidth,
+                widget.cellWidthFactor,
+                widget.spacing,
+                widget.swipeEnabled,
+                widget.firstDate),
+          );
+        }),
+        // StreamBuilder<Map<DateTime, AnnualTaskItem>?>(
+        //   stream: _streamController.stream,
+        //   builder: (context, snapshot) {
+        //     double opacity = 1.0;
+        //     if (contentsWidth == null) {
+        //       opacity = 0.0;
+        //     } else if (_refreshing == true) {
+        //       opacity = 0.5;
+        //     }
+        //     return AnimatedOpacity(
+        //       opacity: opacity,
+        //       duration: Duration(milliseconds: opacity == 1.0 ? 500 : 0),
+        //       child: _AnnualTaskGrid(
+        //           widget.year,
+        //           snapshot.data,
+        //           widget.activateColor ?? Theme.of(context).primaryColor,
+        //           widget.emptyColor,
+        //           widget.showWeekDayLabel,
+        //           widget.showMonthLabel,
+        //           widget.weekDayLabels,
+        //           widget.monthLabels,
+        //           widget.cellShape,
+        //           widget.labelStyle,
+        //           contentsWidth,
+        //           widget.cellWidthFactor,
+        //           widget.spacing,
+        //           widget.swipeEnabled),
+        //     );
+        //   },
+        // ),
       ],
     );
   }
 
-  Future<Map<DateTime, AnnualTaskItem>> _buildListToMap() {
+  //
+  // Future<Map<DateTime, AnnualTaskItem>> _buildListToMap() {
+  //   Map<DateTime, AnnualTaskItem> resultMap = Map();
+  //   _refreshing = true;
+  //   _streamController.add(null);
+  //   widget.items.forEach((item) {
+  //     resultMap[item.date] = item;
+  //   });
+  //   return Future.delayed(Duration.zero, () {
+  //     _streamController.add(resultMap);
+  //     _refreshing = false;
+  //     return resultMap;
+  //   });
+  // }
+
+  Map<DateTime, AnnualTaskItem> _buildListToMap() {
     Map<DateTime, AnnualTaskItem> resultMap = Map();
     _refreshing = true;
     _streamController.add(null);
     widget.items.forEach((item) {
       resultMap[item.date] = item;
     });
-    return Future.delayed(Duration.zero, () {
-      _streamController.add(resultMap);
-      _refreshing = false;
-      return resultMap;
-    });
+    return resultMap;
   }
 
   Widget _layoutManagerView() {
@@ -161,7 +205,7 @@ class _AnnualTaskViewState extends State<AnnualTaskView> {
   }
 }
 
-class _AnnualTaskGrid extends StatelessWidget {
+class _AnnualTaskGrid extends StatefulWidget {
   final DateTime firstDate;
   final Map<DateTime, AnnualTaskItem>? resultMap;
   final int firstDay;
@@ -195,34 +239,93 @@ class _AnnualTaskGrid extends StatelessWidget {
       this.contentsWidth,
       this.cellWidthFactor,
       this.spacing,
-      this.enableSwipe)
-      : firstDate = DateTime(year, 1, 1),
-        firstDay = DateTime(year, 1, 1).weekday % 7,
+      this.enableSwipe,
+      this.firstDate)
+      : firstDay = firstDate.weekday % 7,
         this.cellShape = cellShape ?? AnnualTaskCellShape.ROUNDED_SQUARE,
         this.labelStyle = labelStyle ?? _LABEL_STYLE;
 
   @override
+  State<_AnnualTaskGrid> createState() => _AnnualTaskGridState();
+}
+
+class _AnnualTaskGridState extends State<_AnnualTaskGrid> {
+  late GlobalKey lastCompletedTaskDateWidgetGlobalKey;
+
+  ScrollController scrollController = ScrollController();
+  final GlobalKey _scrollViewKey = GlobalKey();
+
+  // Offset getWidgetOffset(GlobalKey key) {
+  //   final RenderBox? renderBox =
+  //       key.currentContext?.findRenderObject() as RenderBox?;
+  //   final Offset? offset = renderBox?.localToGlobal(Offset.zero);
+  //   return offset ?? Offset(0, 0);
+  // }
+  // bool isWidgetVisible(GlobalKey childKey,GlobalKey scrollViewKey) {
+  //   final RenderBox scrollViewRenderBox =
+  //   scrollViewKey.currentContext?.findRenderObject() as RenderBox;
+  //   final RenderBox childRenderBox =
+  //   childKey.currentContext?.findRenderObject() as RenderBox;
+  //
+  //   final Offset childOffset = childRenderBox.localToGlobal(Offset.zero);
+  //   final Rect visibleRect = Rect.fromPoints(
+  //     scrollViewRenderBox.localToGlobal(Offset.zero),
+  //     scrollViewRenderBox.localToGlobal(
+  //       Offset(scrollViewRenderBox.size.width, scrollViewRenderBox.size.height),
+  //     ),
+  //   );
+  //
+  //   return visibleRect.overlaps(Rect.fromLTWH(
+  //     childOffset.dx,
+  //     childOffset.dy,
+  //     childRenderBox.size.width,
+  //     childRenderBox.size.height,
+  //   ));
+  // }
+  @override
+  void initState() {
+    // WidgetsBinding.instance.addPostFrameCallback(
+    //   (timeStamp) {
+    //     if (widget.resultMap != null) {
+    //       Future.delayed(
+    //         Duration(
+    //           milliseconds: 200,
+    //         ),
+    //         () {
+    //         //  if(!isWidgetVisible(widget.resultMap!.values.last.key!, _scrollViewKey)){
+    //             Offset offset = getWidgetOffset(widget.resultMap!.values.last.key!);
+    //
+    //             scrollController.jumpTo(offset.dx);
+    //         //  }
+    //
+    //         },
+    //       );
+    //     }
+    //   },
+    // );
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    print("mode:" + (widget.firstDate.weekday % 7).toString());
     return LayoutBuilder(
       builder: (context, layout) {
-        return LayoutBuilder(
-          builder: (context, layout) {
-            return enableSwipe
-                ? SingleChildScrollView(
-                    scrollDirection:
-                        Axis.horizontal, // Enable horizontal scrolling
-                    child: _buildTaskGrid(context, layout))
-                : _buildTaskGrid(context, layout);
-          },
-        );
+        return widget.enableSwipe
+            ? SingleChildScrollView(
+                key: _scrollViewKey,
+                controller: scrollController,
+                scrollDirection: Axis.horizontal, // Enable horizontal scrolling
+                child: _buildTaskGrid(context, layout))
+            : _buildTaskGrid(context, layout);
       },
     );
   }
 
   _buildTaskGrid(BuildContext context, BoxConstraints layout) {
-    double maxWidth = contentsWidth ?? layout.maxWidth;
+    double maxWidth = widget.contentsWidth ?? layout.maxWidth;
     // Use cellWidthFactor to adjust the cell size
-    final double cellSize = (maxWidth / 53) * cellWidthFactor;
+    final double cellSize = (maxWidth / 53) * widget.cellWidthFactor;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: List.generate(
@@ -244,22 +347,27 @@ class _AnnualTaskGrid extends StatelessWidget {
                 //       width: layout.maxWidth - maxWidth);
                 // }
                 AnnualTaskItem? result = _getResult(weeks, days);
+                if (result != null) {
+                  print(result.key?.currentContext);
+                }
                 return ClipRRect(
                   borderRadius: BorderRadius.circular(
-                    cellShape == AnnualTaskCellShape.SQUARE
+                    widget.cellShape == AnnualTaskCellShape.SQUARE
                         ? 0
-                        : cellShape == AnnualTaskCellShape.CIRCLE
+                        : widget.cellShape == AnnualTaskCellShape.CIRCLE
                             ? 200
                             : cellSize / 4,
                   ),
                   child: Padding(
-                    padding: EdgeInsets.all(spacing),
+                    padding: EdgeInsets.all(widget.spacing),
                     child: Container(
+                      key: result?.key,
                       width: cellSize,
                       height: cellSize,
-                      color: result?.fillColor(activateColor ??
+                      color: result?.fillColor(widget.activateColor ??
                               Theme.of(context).primaryColor) ??
-                          (emptyColor ?? Theme.of(context).disabledColor),
+                          (widget.emptyColor ??
+                              Theme.of(context).disabledColor),
                     ),
                   ),
                 );
@@ -272,65 +380,19 @@ class _AnnualTaskGrid extends StatelessWidget {
   }
 
   AnnualTaskItem? _getResult(int weeksIdx, int daysIdx) {
-    if (resultMap == null) return null;
-    if (showWeekDayLabel) weeksIdx--;
-    if (showMonthLabel) daysIdx--;
-    int days = weeksIdx * 7 + daysIdx - firstDay;
-    DateTime date = firstDate.add(Duration(days: days));
-    return resultMap![date];
+    if (widget.resultMap == null) return null;
+    if (widget.showWeekDayLabel) weeksIdx--;
+    if (widget.showMonthLabel) daysIdx--;
+    int days = weeksIdx * 7 + daysIdx;
+    //to start the week from sunday ->  int days = weeksIdx * 7 + daysIdx -widget.firstDay
+    DateTime date = widget.firstDate.add(Duration(days: days));
+    //DateTime.now().add(Duration(days: days));
+    return widget.resultMap![date];
   }
 
-  int get _colCnt => showWeekDayLabel == true ? 54 : 53;
+  int get _colCnt => widget.showWeekDayLabel == true ? 54 : 53;
 
-  int get _rowCnt => showMonthLabel == true ? 8 : 7;
-  // Widget _buildMonthLabelRow(double cellSize, {double? paddingLeft}) {
-  //   return Padding(
-  //     padding: EdgeInsets.only(left: paddingLeft ?? 0),
-  //     child: Row(
-  //       children: List.generate(12, (idx) {
-  //         return _buildMonthLabel(idx, cellSize);
-  //       }),
-  //     ),
-  //   );
-  // }
-    //
-    // Widget _buildMonthLabel(int idx, double cellSize) {
-    //   DateTime date =
-    //   DateTime(firstDate.year, idx + 2, 1).subtract(Duration(days: 1));
-    //   return Container(
-    //     width: (cellSize / 0.85) * (date.day / 7.0),
-    //     child: Column(
-    //       crossAxisAlignment: CrossAxisAlignment.start,
-    //       children: [
-    //         Container(
-    //           constraints: BoxConstraints(minWidth: cellSize * 1.5),
-    //           child: Text(
-    //             monthLabels?.elementAt(idx) ?? '',
-    //             style: labelStyle,
-    //             textAlign: TextAlign.center,
-    //           ),
-    //         )
-    //       ],
-    //     ),
-    //   );
-    // }
-
-
-
-
-  // Widget _buildWeekdayLabel(int weekIdx, {double? width}) {
-  //   return Container(
-  //     margin: EdgeInsets.zero,
-  //     padding:EdgeInsets.zero ,
-  //     width: width ?? 0,
-  //     alignment: Alignment.centerRight,
-  //     child: Text(
-  //       weekDayLabels?.elementAt(weekIdx - (showMonthLabel ? 1 : 0)) ?? '',
-  //       textAlign: TextAlign.start,
-  //       style: labelStyle,
-  //     ),
-  //   );
-  // }
+  int get _rowCnt => widget.showMonthLabel == true ? 8 : 7;
 }
 
 const List<String> _WEEKDAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
