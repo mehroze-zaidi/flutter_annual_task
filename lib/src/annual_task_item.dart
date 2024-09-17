@@ -14,7 +14,7 @@ class AnnualTaskItem {
   int get alpha => ((255.0 - 80.0) * (proceeding ?? 0)).toInt();
   Color? fillColor(Color? activateColor) {
     if (alpha <= 0) return null;
-    return activateColor?.withAlpha(alpha + 80);
+    return activateColor;
   }
 }
 
