@@ -17,6 +17,8 @@ class _MyAppState extends State<MyApp> {
     List<AnnualTaskItem> taskItemsWithColor =
         AnnualTaskItemHelper.generateAnnualTaskColorItem(taskItems);
     return MaterialApp(
+      theme: ThemeData(useMaterial3: true),
+
       home: Scaffold(
         appBar: AppBar(
           title: const Text('annual_task_view'),

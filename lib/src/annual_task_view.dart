@@ -89,32 +89,23 @@ class _AnnualTaskViewState extends State<AnnualTaskView> {
       children: <Widget>[
         _layoutManagerView(),
         Builder(builder: (context) {
-          double opacity = 1.0;
-          if (contentsWidth == null) {
-            opacity = 0.0;
-          } else if (_refreshing == true) {
-            opacity = 0.5;
-          }
-          return AnimatedOpacity(
-            opacity: opacity,
-            duration: Duration(milliseconds: opacity == 1.0 ? 500 : 0),
-            child: _AnnualTaskGrid(
-                widget.year,
-                _buildListToMap(),
-                widget.activateColor ?? Theme.of(context).primaryColor,
-                widget.emptyColor,
-                widget.showWeekDayLabel,
-                widget.showMonthLabel,
-                widget.weekDayLabels,
-                widget.monthLabels,
-                widget.cellShape,
-                widget.labelStyle,
-                contentsWidth,
-                widget.cellWidthFactor,
-                widget.spacing,
-                widget.swipeEnabled,
-                widget.firstDate),
-          );
+
+          return _AnnualTaskGrid(
+              widget.year,
+              _buildListToMap(),
+              widget.activateColor ?? Theme.of(context).primaryColor,
+              widget.emptyColor,
+              widget.showWeekDayLabel,
+              widget.showMonthLabel,
+              widget.weekDayLabels,
+              widget.monthLabels,
+              widget.cellShape,
+              widget.labelStyle,
+              contentsWidth,
+              widget.cellWidthFactor,
+              widget.spacing,
+              widget.swipeEnabled,
+              widget.firstDate);
         }),
         // StreamBuilder<Map<DateTime, AnnualTaskItem>?>(
         //   stream: _streamController.stream,
@@ -252,8 +243,8 @@ class _AnnualTaskGrid extends StatefulWidget {
 class _AnnualTaskGridState extends State<_AnnualTaskGrid> {
   late GlobalKey lastCompletedTaskDateWidgetGlobalKey;
 
-  ScrollController scrollController = ScrollController();
-  final GlobalKey _scrollViewKey = GlobalKey();
+  // ScrollController scrollController = ScrollController();
+  // final GlobalKey _scrollViewKey = GlobalKey();
 
   // Offset getWidgetOffset(GlobalKey key) {
   //   final RenderBox? renderBox =
@@ -313,8 +304,6 @@ class _AnnualTaskGridState extends State<_AnnualTaskGrid> {
       builder: (context, layout) {
         return widget.enableSwipe
             ? SingleChildScrollView(
-                key: _scrollViewKey,
-                controller: scrollController,
                 scrollDirection: Axis.horizontal, // Enable horizontal scrolling
                 child: _buildTaskGrid(context, layout))
             : _buildTaskGrid(context, layout);
@@ -347,9 +336,7 @@ class _AnnualTaskGridState extends State<_AnnualTaskGrid> {
                 //       width: layout.maxWidth - maxWidth);
                 // }
                 AnnualTaskItem? result = _getResult(weeks, days);
-                if (result != null) {
-                  print(result.key?.currentContext);
-                }
+
                 return ClipRRect(
                   borderRadius: BorderRadius.circular(
                     widget.cellShape == AnnualTaskCellShape.SQUARE
@@ -361,10 +348,11 @@ class _AnnualTaskGridState extends State<_AnnualTaskGrid> {
                   child: Padding(
                     padding: EdgeInsets.all(widget.spacing),
                     child: Container(
-                      key: result?.key,
+
                       width: cellSize,
                       height: cellSize,
-                      color: result?.fillColor(widget.activateColor ??
+                      color:
+                      result?.fillColor(widget.activateColor ??
                               Theme.of(context).primaryColor) ??
                           (widget.emptyColor ??
                               Theme.of(context).disabledColor),
